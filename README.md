@@ -1,3 +1,4 @@
+
 # Gym Membership Management System
 
 A MySQL-based database management project designed to manage gym members, membership plans, trainers, payments, and attendance.
@@ -39,6 +40,79 @@ The project contains seven tables:
 | `payments` | Stores membership payment records |
 | `attendance` | Records member check-ins |
 | `membership_log` | Maintains a log of new memberships |
+
+### Entity Relationship Diagram (ER Diagram)
+
+The following ER diagram illustrates the database tables, their attributes, primary keys, foreign keys, and relationships.
+
+```mermaid
+erDiagram
+    MEMBERS {
+        INT member_id PK
+        VARCHAR first_name
+        VARCHAR last_name
+        VARCHAR phone UK
+        VARCHAR email UK
+        ENUM gender
+        DATE join_date
+    }
+
+    PLANS {
+        INT plan_id PK
+        VARCHAR plan_name UK
+        INT duration_months
+        DECIMAL price
+        VARCHAR description
+    }
+
+    TRAINERS {
+        INT trainer_id PK
+        VARCHAR trainer_name
+        VARCHAR specialization
+        VARCHAR phone UK
+        DECIMAL salary
+        DATE hire_date
+    }
+
+    MEMBERSHIPS {
+        INT membership_id PK
+        INT member_id FK
+        INT plan_id FK
+        INT trainer_id FK
+        DATE start_date
+        DATE end_date
+        ENUM status
+    }
+
+    PAYMENTS {
+        INT payment_id PK
+        INT membership_id FK
+        DECIMAL amount
+        DATETIME payment_date
+        ENUM payment_method
+        ENUM payment_status
+    }
+
+    ATTENDANCE {
+        INT attendance_id PK
+        INT member_id FK
+        DATETIME check_in_time
+    }
+
+    MEMBERSHIP_LOG {
+        INT log_id PK
+        INT membership_id
+        INT member_id
+        VARCHAR action
+        DATETIME log_date
+    }
+
+    MEMBERS ||--o{ MEMBERSHIPS : has
+    PLANS ||--o{ MEMBERSHIPS : selected_for
+    TRAINERS ||--o{ MEMBERSHIPS : assigned_to
+    MEMBERSHIPS ||--o{ PAYMENTS : receives
+    MEMBERS ||--o{ ATTENDANCE : records
+```
 
 ### Table Relationships
 
@@ -116,8 +190,9 @@ The backup was also restored into a separate database to verify that the databas
 ```text
 gym-membership-management/
 │
-├── README.md
+├── .gitignore
 ├── LICENSE
+├── README.md
 │
 ├── sql/
 │   ├── 01_create_database_tables.sql
@@ -133,14 +208,13 @@ gym-membership-management/
 │   └── members_import.csv
 │
 ├── documentation/
-│   ├── requirements.md
 │   ├── data_dictionary.md
-│   └── er_diagram.png
+│   └── er_diagram.mmd
 │
 ├── screenshots/
-│
-├── presentation/
-│   └── gym_membership_management.pptx
+│   ├── database_tables/
+│   ├── query_outputs/
+│   └── triggers_views/
 │
 └── backup/
     └── gym_management_backup.sql
