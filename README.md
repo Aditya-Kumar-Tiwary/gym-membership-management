@@ -1,4 +1,3 @@
-
 # Gym Membership Management System
 
 A MySQL-based database management project designed to manage gym members, membership plans, trainers, payments, and attendance.
@@ -41,10 +40,9 @@ The project contains seven tables:
 | `attendance` | Records member check-ins |
 | `membership_log` | Maintains a log of new memberships |
 
-
 ### Entity Relationship Diagram (ER Diagram)
 
-The following diagram illustrates the seven database tables, their attributes, primary keys, foreign keys, and relationships.
+The following ER diagram illustrates the database tables, their attributes, primary keys, foreign keys, relationships, and trigger connections.
 
 ```mermaid
 erDiagram
@@ -113,46 +111,14 @@ erDiagram
     TRAINERS ||--o{ MEMBERSHIPS : assigned_to
     MEMBERSHIPS ||--o{ PAYMENTS : receives
     MEMBERS ||--o{ ATTENDANCE : records
+
+    PLANS ||..o{ MEMBERSHIPS : "BEFORE INSERT Trigger"
+    MEMBERSHIPS ||..o{ MEMBERSHIP_LOG : "AFTER INSERT Trigger"
 ```
 
-### Trigger Automation Flow
-
-The project implements two triggers on the `MEMBERSHIPS` table. Both execute automatically when a new membership record is inserted.
-
-```mermaid
-flowchart TD
-    A([New Membership INSERT]) --> B["BEFORE INSERT Trigger<br/>trg_membership_before_insert"]
-
-    B --> C["Fetch plan duration<br/>from PLANS table"]
-    C --> D["Automatically calculate<br/>membership end_date"]
-    D --> E["New membership record<br/>is inserted into MEMBERSHIPS"]
-
-    E --> F["AFTER INSERT Trigger<br/>trg_membership_after_insert"]
-    F --> G["Insert log entry into<br/>MEMBERSHIP_LOG"]
-    G --> H["Action: NEW MEMBERSHIP CREATED"]
-    H --> I([Process Completed])
-
-    style B fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style F fill:#dcfce7,stroke:#16a34a,color:#14532d
-```
-
-**Trigger Execution Explained:**
-
-| Trigger | Execution Time | Automatic Action |
-|---|---|---|
-| `trg_membership_before_insert` | Before a new membership is inserted | Fetches the selected plan's duration and calculates `end_date` |
-| `trg_membership_after_insert` | After a new membership is successfully inserted | Creates a log entry in `membership_log` |
-
-**Example:**
-
-If a member selects a Quarterly Plan with a duration of 3 months and the membership starts on 1 January 2026:
-
-- BEFORE INSERT trigger calculates the membership end date as 1 April 2026.
-- The membership record is inserted into `MEMBERSHIPS`.
-- AFTER INSERT trigger automatically creates a record in `MEMBERSHIP_LOG` with the action `NEW MEMBERSHIP CREATED`.
-
-No manual execution of these triggers is required. MySQL executes them automatically when the specified INSERT operation occurs.
-
+**Trigger connections shown in dotted lines:**
+- `PLANS → MEMBERSHIPS`: BEFORE INSERT trigger calculates the membership end date using the selected plan's duration.
+- `MEMBERSHIPS → MEMBERSHIP_LOG`: AFTER INSERT trigger automatically creates a membership log entry.
 
 ### Table Relationships
 
